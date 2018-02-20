@@ -1,0 +1,16 @@
+.testCaseMainTable {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.testCaseMainStep {
+  width: 40px;
+}
+
+.testCaseMainAction {
+  width: 200px;
+}
+
+.testCaseMainExpectedResult {
+  width: 200px;
+}

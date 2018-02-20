@@ -1,0 +1,26 @@
+{
+  "name": "testlink",
+  "version": "1.0.0",
+  "description": "A react and dynamic user interface for the test tool TestLink based on the xmlrpc API",
+  "main": "index.js",
+  "dependencies": {
+    "@tinymce/tinymce-react": "^2.2.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-scripts": "1.1.0",
+    "react-sortable-tree": "^2.0.1",
+    "react-sortable-tree-theme-file-explorer": "^1.1.2",
+    "semantic-ui-css": "^2.2.14",
+    "semantic-ui-react": "^0.78.2",
+    "tinymce": "^4.7.7",
+    "xmlrpc": "^1.3.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "author": "Stefan May",
+  "proxy": "TO_CONFIGURE_LOCALLY"
+}
