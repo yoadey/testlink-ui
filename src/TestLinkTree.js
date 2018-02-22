@@ -12,7 +12,11 @@ class TestLinkTree extends React.Component {
     super(props);
     this.state = {
       treeData: [{ title: 'Loading...' }],
+      devKey: undefined
     };
+  }
+
+  componentDidMount(){
     this.initialiseProjects();
   }
 

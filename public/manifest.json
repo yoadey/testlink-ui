@@ -1,6 +1,6 @@
 {
-  "short_name": "TestLink UI",
-  "name": "TestLink UI",
+  "short_name": "React App",
+  "name": "Create React App Sample",
   "icons": [
     {
       "src": "favicon.ico",
