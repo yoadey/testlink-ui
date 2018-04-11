@@ -33,18 +33,24 @@ class TestLinkHeader extends React.Component {
     });
   }
 
+  logout() {
+    localStorage.removeItem('testlink.loginId');
+    localStorage.removeItem('testlink.devKey');
+    this.props.onLogout();
+  }
 
   render() {
     return (
       <Grid>
-        <Grid.Row columns="2">
+        <Grid.Row columns="2" color="blue">
           <Grid.Column>
             <img src='/testlink/gui/themes/default/images/tl-logo-transparent-12.5.png'/>
             <Icon name='user circle outline' color='blue' size='big'/>
             {this.state.username}
           </Grid.Column>
           <Grid.Column>
-            <Icon name='user cancel' color='red' size='big'/>
+            <Icon name='user cancel' color='red' size='big'
+              onClick={() => this.logout()}/>
           </Grid.Column>
         </Grid.Row>
       </Grid>

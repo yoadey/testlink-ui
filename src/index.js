@@ -38,26 +38,27 @@ class TestLinkLayout extends React.Component {
     else {
       layout = (
         <div style={{width: '100%', overflow: 'hidden'}}>
-        <div style={{width: '100%'}}>
-          <TestLinkHeader
+          <div style={{width: '100%'}}>
+            <TestLinkHeader
+                testlinkClient={this.state.testlinkClient}
+                devKey={this.state.devKey}
+                loginId={this.state.loginId}
+                onLogout={() => this.setState({devKey: undefined, loginId: undefined })} />
+          </div>
+          <div style={{float: 'left', width: '400px'}}>
+            <TestLinkTree
               testlinkClient={this.state.testlinkClient}
               devKey={this.state.devKey}
-              loginId={this.state.loginId} />
-        </div>
-        <div style={{float: 'left', width: '400px'}}>
-          <TestLinkTree
-            testlinkClient={this.state.testlinkClient}
-            devKey={this.state.devKey}
-            onSelect={(type, id) => this.updateMainWindow(type, id)}/>
-        </div>
-        <div>
-          <TestLinkMain
-            testlinkClient={this.state.testlinkClient}
-            devKey={this.state.devKey}
-            type={this.state.selectedType}
-            id={this.state.selectedId}
-            path={this.state.selectedPath}/>
-        </div>
+              onSelect={(type, id) => this.updateMainWindow(type, id)}/>
+          </div>
+          <div>
+            <TestLinkMain
+              testlinkClient={this.state.testlinkClient}
+              devKey={this.state.devKey}
+              type={this.state.selectedType}
+              id={this.state.selectedId}
+              path={this.state.selectedPath}/>
+          </div>
         </div>
       )
     }

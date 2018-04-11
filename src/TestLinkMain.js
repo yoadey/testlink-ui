@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import 'semantic-ui-css/semantic.min.css';
-import { Table, Grid, Loader, Header } from 'semantic-ui-react';
+import { Table, Grid, Loader, Header, Icon, Button } from 'semantic-ui-react';
 import { Editor } from '@tinymce/tinymce-react';
 import 'tinymce/themes/modern/theme';
 
@@ -24,11 +24,11 @@ class TestCaseView extends React.Component {
     }
   }
 
-  componentWillReceiveProps(){
+  componentWillReceiveProps() {
     this.loadTestCase();
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.loadTestCase();
   }
 
@@ -68,8 +68,9 @@ class TestCaseView extends React.Component {
     return {__html: html};
   }
 
-  editField({step, index}) {
+  editField({focus, step, index}) {
     this.setState({
+      focus: focus,
       editstep: step
     });
   }
@@ -87,8 +88,102 @@ class TestCaseView extends React.Component {
     updatedTestCase.steps[index] = stepCopy;
     this.setState({
       testcase: updatedTestCase,
-      editstep: stepCopy
+      editstep: stepCopy,
+      focus: undefined
     })
+  }
+
+  addStep(index) {
+    var updatedTestCase = Object.assign({}, this.state.testcase);
+    var steps = Object.assign([], updatedTestCase.steps);
+    var newStep = {
+      actions: "",
+      active: "1",
+      execution_type: "1",
+      expected_results: "",
+      step_number: index
+    }
+    index = parseInt(index);
+    steps.splice(index+1, 0, newStep);
+    for(var i = 0; i < steps.length; i++) {
+      steps[i].step_number = i + 1;
+    }
+    updatedTestCase.steps = steps;
+    this.setState({
+      testcase: updatedTestCase
+    })
+  }
+
+  removeStep(index) {
+      var updatedTestCase = Object.assign({}, this.state.testcase);
+      var steps = updatedTestCase.steps;
+      steps.splice(index, 1);
+      updatedTestCase.steps = steps;
+      this.setState({
+        testcase: updatedTestCase
+      })
+  }
+
+  saveTestCase() {
+    var testcaseTO = this.convertTestCase(this.state.testcase);
+    testcaseTO.devKey = this.props.devKey;
+
+    this.setState({
+      isLoading: true
+    })
+    this.props.testlinkClient.methodCall('tl.updateTestCase', [testcaseTO],
+        (error, value) => {
+        if(error) {
+          this.setState({
+            error: error,
+            loadedId: this.props.id,
+            isLoading: false
+          });
+        }else {
+          this.loadTestCase();
+        }
+      }
+    );
+  }
+
+  convertTestCase(testcase) {
+    var stepsTO = this.convertSteps(testcase.steps);
+
+    var testcaseTO = {
+      testcasename: testcase.name,
+      testsuiteid: testcase.testsuite_id,
+      testprojectid: this.props.projectId,
+      authorlogin: testcase.author_login,
+      summary: testcase.summary,
+      steps: stepsTO,
+      preconditions: testcase.preconditions,
+      status: testcase.status,
+      importance: testcase.importance,
+      executiontype: testcase.execution_type,
+      order: testcase.node_order,
+      testcaseexternalid: testcase.full_tc_external_id,
+      checkduplicatedname: null,
+      actiononduplicatedname: null
+    }
+
+    return testcaseTO;
+  }
+
+  convertSteps(steps) {
+    var stepsTO = [];
+
+    for(var i in steps) {
+      var step = steps[i];
+      var stepTO = {
+        step_number: step.step_number,
+        actions: step.actions,
+        expected_results: step.expected_results,
+        execution_type: step.execution_type
+      }
+      stepsTO.push(stepTO);
+    }
+
+    return stepsTO;
   }
 
   render() {
@@ -105,14 +200,26 @@ class TestCaseView extends React.Component {
       for(var i in this.state.testcase.steps) {
         const step = this.state.testcase.steps[i];
         const index = i;
+        var actionsFocus = undefined;
+        var expectedResultsFocus = undefined;
+        if(this.state.focus === "actions") {
+          actionsFocus = function (editor) { editor.on('init', function () { editor.focus(); }); };
+        } else if(this.state.focus === "expected_results") {
+          expectedResultsFocus = function (editor) { editor.on('init', function () { editor.focus(); }); };
+        }
         if(step == this.state.editstep) {
           steps.push(
             <Table.Row columns={3}>
-              <Table.Cell>#{step.step_number}</Table.Cell>
+              <Table.Cell>
+                #{step.step_number}<br/>
+                <Icon name="plus circle" color="green" onClick={(evt) => this.addStep(index)}/>
+                <Icon name="minus circle" color="red" onClick={(evt) => this.removeStep(index)}/>
+              </Table.Cell>
               <Table.Cell>
                 <Editor
                   initialValue={step.actions}
                   init={{
+                    setup: actionsFocus,
                     menubar:false,
                     statusbar: false,
                     height: '200px',
@@ -126,6 +233,7 @@ class TestCaseView extends React.Component {
                 <Editor
                   initialValue={step.expected_results}
                   init={{
+                    setup: expectedResultsFocus,
                     menubar:false,
                     statusbar: false,
                     height: '200px',
@@ -141,18 +249,24 @@ class TestCaseView extends React.Component {
         else {
           steps.push(
             <Table.Row columns={3}>
-              <Table.Cell>#{step.step_number}</Table.Cell>
               <Table.Cell>
-                <div
-                  dangerouslySetInnerHTML={this.createMarkup(step.actions)}
-                  onClick={() => this.editField({ step: step,
-                    index: index})}/>
+                #{step.step_number}<br/>
+                <Icon name="plus circle" color="green" onClick={(evt) => this.addStep(index)}/>
+                <Icon name="minus circle" color="red" onClick={(evt) => this.removeStep(index)}/>
               </Table.Cell>
-              <Table.Cell>
-                <div
-                  dangerouslySetInnerHTML={this.createMarkup(step.expected_results)}
-                  onClick={() => this.editField({ step: step,
-                    index: index})}/>
+              <Table.Cell
+                  onClick={() => this.editField({ focus: "actions", step: step, index: index})}
+                  selectable>
+                <a href="#" onFocus={() => this.editField({ focus: "actions", step: step, index: index})}>
+                  <div dangerouslySetInnerHTML={this.createMarkup(step.actions)} />
+                </a>
+              </Table.Cell>
+              <Table.Cell
+                  onClick={() => this.editField({ focus: "expected_results", step: step, index: index})}
+                  selectable>
+                <a href="#" onFocus={() => this.editField({ focus: "expected_results", step: step, index: index})}>
+                  <div dangerouslySetInnerHTML={this.createMarkup(step.expected_results)} />
+                </a>
               </Table.Cell>
             </Table.Row>
           );
@@ -176,6 +290,11 @@ class TestCaseView extends React.Component {
               <Table.Body>
                 {steps}
               </Table.Body>
+              <Table.Footer>
+                <Table.Row>
+                  <Table.Cell columns={3}><Button content="Save" icon="save" onClick={(evt) => this.saveTestCase()}/></Table.Cell>
+                </Table.Row>
+              </Table.Footer>
             </Table>
           </Grid.Row>
         </Grid>
@@ -189,7 +308,8 @@ class TestLinkMain extends React.Component {
   render() {
     var mainElement = <div>Hello World</div>;
     if(this.props.type === 'test_case') {
-      var projectId = this.props.path[0].id;
+      var projectId = this.props.path[0];
+      projectId = projectId.split("_")[1];
       mainElement = <TestCaseView
           testlinkClient={this.props.testlinkClient}
           devKey={this.props.devKey}

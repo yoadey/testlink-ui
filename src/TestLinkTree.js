@@ -270,7 +270,7 @@ class TestLinkTree extends React.Component {
 
   render() {
     return (
-      <div style={{ height: 900, width: 400 }}>
+      <div style={{ height: "100%", width: 300 }}>
         <SortableTree
           treeData={this.state.treeData}
           onChange={treeData => this.setState({ treeData })}
@@ -279,6 +279,7 @@ class TestLinkTree extends React.Component {
           generateNodeProps={rowInfo => this.generateNodeProps(rowInfo)}
           getNodeKey={({node}) => this.getNodeKey({node})}
           canDrag={false}
+          isVirtualized={false}
         />
       </div>
     );

@@ -15,6 +15,16 @@ class TestLinkLogin extends React.Component {
       loginRunning: false,
       loginFailed: false
     };
+    this.checkAlreadyLoggedIn();
+  }
+
+  checkAlreadyLoggedIn() {
+    var loginId = localStorage.getItem('testlink.loginId');
+    var devKey = localStorage.getItem('testlink.devKey');
+
+    if(loginId && devKey) {
+      this.props.onLogin({devKey:devKey, loginId: loginId});
+    }
   }
 
   login() {
@@ -53,6 +63,8 @@ class TestLinkLogin extends React.Component {
         var devKey = apiKeyPattern.exec(data);
         if(this.props.onLogin) {
           this.props.onLogin({devKey: devKey[1], loginId: this.state.user});
+          localStorage.setItem('testlink.loginId', this.state.user);
+          localStorage.setItem('testlink.devKey', devKey[1]);
         }
       });
     });
